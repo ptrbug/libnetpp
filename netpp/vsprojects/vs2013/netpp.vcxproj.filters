@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\netpp\net\buffer.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\netpp\net\event_loop.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\netpp\net\event_loop_thread.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\netpp\net\event_loop_thread_pool.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\netpp\net\tcp_client.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\netpp\net\tcp_conn.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\netpp\net\tcp_server.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\netpp\base\logging.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\protobuf\codec.cpp">
+      <Filter>net\protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\piece\piece_allocator.cpp">
+      <Filter>net\piece</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\netpp\net\piece\queue.h">
+      <Filter>net\piece</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\buffer.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\event_loop.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\event_loop_thread.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\event_loop_thread_pool.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\server_status.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\tcp_callbacks.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\tcp_client.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\tcp_conn.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\net\tcp_server.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\netpp\base\logging.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\protobuf\buffer_input_stream.h">
+      <Filter>net\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\protobuf\buffer_output_stream.h">
+      <Filter>net\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\protobuf\codec.h">
+      <Filter>net\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\protobuf\dispatcher.h">
+      <Filter>net\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\piece\piece_allocator.h">
+      <Filter>net\piece</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="net">
+      <UniqueIdentifier>{07f76dfc-f042-4340-b289-c79dd1b591f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net\piece">
+      <UniqueIdentifier>{a38061ca-916c-4862-99fb-bf365c9138ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{a09b800b-6cc6-4f22-8b91-aace6632b5c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net\protobuf">
+      <UniqueIdentifier>{1f905753-468e-48f1-a939-a5578cc23753}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

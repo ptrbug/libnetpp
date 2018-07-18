@@ -1,0 +1,12 @@
+syntax = "proto3";
+package Echo;
+
+message Request {
+	int64 id = 1;
+	string ask = 2;  
+}
+
+message Response {
+	int64 id = 1;
+	string answer = 2;
+}
