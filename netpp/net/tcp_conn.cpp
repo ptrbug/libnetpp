@@ -63,7 +63,8 @@ TCPConn::TCPConn(EventLoop* loop
 	, id_(id)
 	, socket_(sock)
 	, status_(kDisconnected)
-	, is_sending_(false) {
+	, is_sending_(false)
+	, waiting_for_close_safe_(false) {
 
 }
 
@@ -122,16 +123,16 @@ void TCPConn::close() {
 	}
 }
 
-void TCPConn::closeWithDelay(long seconds) {
+void TCPConn::closeSafe() {
 	StateE expected = kConnected;
 	if (status_.compare_exchange_strong(expected, kDisconnecting)) {
 		auto guardThis = shared_from_this();
 		auto f = [guardThis]() {
 			assert(guardThis->loop_->isInLoopThread());
-			guardThis->handleClose();
+			guardThis->handleCloseSafe();
 		};
 
-		delay_close_timer_ = loop_->runAfter(boost::posix_time::seconds(seconds), f);
+		loop_->queueInLoop(f);
 	}	
 }
 
@@ -164,6 +165,12 @@ void TCPConn::launchWrite() {
 		Piece* piece = output_buffer_.readPiece();
 		socket_->async_send(boost::asio::buffer(piece->data + piece->misalgin, piece->off),
 			std::bind(&TCPConn::handleWrite, shared_from_this(), piece, std::placeholders::_1));
+	}
+	else {
+		if (waiting_for_close_safe_) {
+			waiting_for_close_safe_ = false;
+			handleClose();
+		}
 	}
 }
 
@@ -210,11 +217,6 @@ void TCPConn::handleClose() {
 	assert(status_ == kDisconnecting);
 	if (status_ != kDisconnected) {
 
-		if (delay_close_timer_) {
-			delay_close_timer_->cancel();
-			delay_close_timer_.reset();
-		}
-
 		if (socket_) {
 			assert(socket_->is_open());
 			boost::system::error_code ec;
@@ -229,6 +231,15 @@ void TCPConn::handleClose() {
 		close_cb_(conn);
 
 		status_ = kDisconnected;
+	}
+}
+
+void TCPConn::handleCloseSafe() {
+	if (output_buffer_.length() > 0) {
+		waiting_for_close_safe_ = true;
+	}
+	else {
+		handleClose();
 	}
 }
 }
