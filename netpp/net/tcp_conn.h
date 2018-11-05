@@ -40,7 +40,7 @@ public:
 	void send(Buffer* buffer);
 
 	void close();
-	void closeSafe();
+	void closeWithDelay(long seconds);
 	void setTcpNoDelay(bool on);	
 
 	void setContext(const boost::any& context) {
@@ -76,7 +76,6 @@ private:
 	void handleRead(Piece* piece, const boost::system::error_code &ec, size_t bytes_transferred);
 	void handleError();
 	void handleClose();
-	void handleCloseSafe();
 
 	EventLoop* loop_;
 	const uint64_t id_;
@@ -86,10 +85,10 @@ private:
 
 	std::atomic<StateE> status_;
 	bool is_sending_;
-	bool waiting_for_close_safe_;
 	OutputBuffer output_buffer_;
 	InputBuffer input_buffer_;
 	boost::any context_;
+	DealTimerPtr delay_close_timer_;
 
 	//callbacks
 	ConnectionCallback connection_cb_;
