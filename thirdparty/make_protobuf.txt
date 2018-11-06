@@ -1,0 +1,19 @@
+1. for example, if the protobuf exsit the path "C:\Path\to\protobuf"
+	C:\Path\to\protobuf>cd cmake
+	C:\Path\to\protobuf\cmake>
+	
+	C:\Path\to\protobuf\cmake>mkdir build & cd build
+	C:\Path\to\protobuf\cmake\build>
+
+
+2. open visual studio tools command, change work path to "C:\Path\to\protobuf\build"
+
+3. if you choose  x86 Native Tools Command"
+	Release:
+		mkdir release & cd release
+		cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=../../../../install/x86/release ../..
+		nmake install
+   Debug
+		mkdir debug & cd debug
+		cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=../../../../install/x86/debug ../..
+		nmake install
