@@ -11,6 +11,7 @@ void TCPConn::InputBuffer::writePiece(Piece* item) {
 			last->misalgin = 0;
 		}
 		memcpy(last->data + last->off, item->data + item->misalgin, item->off);
+		last->off += item->off;
 		deletePiece(item);
 	}
 	else {
