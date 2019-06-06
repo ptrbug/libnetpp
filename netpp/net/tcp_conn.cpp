@@ -3,21 +3,21 @@
 
 namespace netpp {
 void TCPConn::InputBuffer::writePiece(Piece* item) {
-	assert(item->off > 0);
+	assert(item->len > 0);
 	Piece* last = back();
-	if (last && last->off + item->off <= sizeof(last->data)) {
-		if (last->misalgin > 0) {
-			memmove(last->data, last->data + last->misalgin, last->off);
-			last->misalgin = 0;
+	if (last && last->len + item->len <= sizeof(last->data)) {
+		if (last->off > 0) {
+			memmove(last->data, last->data + last->off, last->len);
+			last->off = 0;
 		}
-		memcpy(last->data + last->off, item->data + item->misalgin, item->off);
-		last->off += item->off;
+		memcpy(last->data + last->len, item->data + item->off, item->len);
+		last->len += item->len;
 		deletePiece(item);
 	}
 	else {
 		push(item);
 	}
-	length_ += item->off;
+	length_ += item->len;
 }
 
 Piece* TCPConn::OutputBuffer::readPiece() {
@@ -26,22 +26,22 @@ Piece* TCPConn::OutputBuffer::readPiece() {
 	if (first) {
 		uint16_t capacity = sizeof(first->data);
 
-		while (first->off < capacity) {
+		while (first->len < capacity) {
 			Piece* next = front();
-			if (next && first->off + next->off <= capacity) {
-				if (first->misalgin > 0) {
-					memmove(first->data, first->data + first->misalgin, first->off);
-					first->misalgin = 0;
+			if (next && first->len + next->len <= capacity) {
+				if (first->off > 0) {
+					memmove(first->data, first->data + first->off, first->len);
+					first->off = 0;
 				}
 				pop();
-				memcpy(first->data + first->off, next->data + next->misalgin, next->off);
-				first->off += next->off;
+				memcpy(first->data + first->len, next->data + next->off, next->len);
+				first->len += next->len;
 			}
 			else {
 				break;
 			}
 		}
-		length_ -= first->off;
+		length_ -= first->len;
 	}
 	return first;
 }
@@ -50,9 +50,9 @@ void TCPConn::OutputBuffer::writePieceQueue(Piece* queue_head){
 	assert(queue_head);
 	Piece* item = queue_head;
 	while (item) {
-		assert(item->off > 0);
+		assert(item->len > 0);
 		push(item);
-		length_ += item->off;
+		length_ += item->len;
 		item = item->next;
 	}
 }
@@ -154,7 +154,7 @@ void TCPConn::sendInLoop(Piece* queue_head) {
 	if (!is_sending_) {
 		is_sending_ = true;
 		Piece* piece = output_buffer_.readPiece();
-		socket_->async_send(boost::asio::buffer(piece->data + piece->misalgin, piece->off),
+		socket_->async_send(boost::asio::buffer(piece->data + piece->off, piece->len),
 			std::bind(&TCPConn::handleWrite, this, piece, std::placeholders::_1));
 	}
 }
@@ -163,7 +163,7 @@ void TCPConn::launchWrite() {
 	if (output_buffer_.length() > 0) {
 		is_sending_ = true;
 		Piece* piece = output_buffer_.readPiece();
-		socket_->async_send(boost::asio::buffer(piece->data + piece->misalgin, piece->off),
+		socket_->async_send(boost::asio::buffer(piece->data + piece->off, piece->len),
 			std::bind(&TCPConn::handleWrite, shared_from_this(), piece, std::placeholders::_1));
 	}
 }
@@ -181,13 +181,13 @@ void TCPConn::handleWrite(Piece* piece, const boost::system::error_code &ec) {
 
 void TCPConn::launchRead() {
 	Piece* piece = newPiece();
-	socket_->async_read_some(boost::asio::buffer(piece->data + piece->misalgin, sizeof(piece->data) - piece->misalgin),
+	socket_->async_read_some(boost::asio::buffer(piece->data + piece->off, sizeof(piece->data) - piece->off),
 		std::bind(&TCPConn::handleRead, shared_from_this(), piece, std::placeholders::_1, std::placeholders::_2));
 }
 
 void TCPConn::handleRead(Piece* piece, const boost::system::error_code &ec, size_t bytes_transferred) {
 	if (!ec) {
-		piece->off = bytes_transferred;
+		piece->len = bytes_transferred;
 		input_buffer_.writePiece(piece);
 		message_cb_(shared_from_this(), &input_buffer_);		
 		launchRead();

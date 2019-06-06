@@ -51,21 +51,21 @@ protected:
 		assert(length() >= sizeof(t));
 
 		Piece* cur = front();
-		if (sizeof(T) <= cur->off) {
-			memcpy(&t, cur->data + cur->misalgin, sizeof(T));
+		if (sizeof(T) <= cur->len) {
+			memcpy(&t, cur->data + cur->off, sizeof(T));
 		}
 		else {
-			memcpy(&t, cur->data + cur->misalgin, cur->off);			
-			size_t left = sizeof(T) - cur->off;
+			memcpy(&t, cur->data + cur->off, cur->len);			
+			size_t left = sizeof(T) - cur->len;
 			cur = cur->next;
 			do {
-				if (left <= cur->off) {
-					memcpy(&t + sizeof(T) - left, cur->data + cur->misalgin, left);
+				if (left <= cur->len) {
+					memcpy(&t + sizeof(T) - left, cur->data + cur->off, left);
 					break;
 				}
 				else {
-					memcpy(&t + sizeof(T) - left, cur->data + cur->misalgin, cur->off);
-					left -= cur->off;
+					memcpy(&t + sizeof(T) - left, cur->data + cur->off, cur->len);
+					left -= cur->len;
 					cur = cur->next;
 				}
 			} while (true);

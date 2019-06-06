@@ -51,10 +51,10 @@ private:
 	public:
 		bool flatNext(const void** data, int* size, Piece** drop_ptr) {
 			Piece* first = front();
-			if (first && first->off > 0) {
-				*data = first->data + first->misalgin;
-				*size = first->off;
-				length_ -= first->off;
+			if (first && first->len > 0) {
+				*data = first->data + first->off;
+				*size = first->len;
+				length_ -= first->len;
 				*drop_ptr = pop();
 				return true;
 			}
@@ -67,9 +67,9 @@ private:
 
 		void flatBackUp(size_t len, Piece* drop){
 			assert(drop);
-			assert(drop->off > len);
-			drop->misalgin += drop->off - len;
-			drop->off = len;
+			assert(drop->len > len);
+			drop->off += drop->len - len;
+			drop->len = len;
 
 			drop->next = head_;
 			head_ = drop;

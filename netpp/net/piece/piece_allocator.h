@@ -7,8 +7,8 @@ namespace netpp {
 	struct Piece
 	{
 		Piece* next;
-		uint16_t misalgin;
 		uint16_t off;
+		uint16_t len;
 		char data[kPieceCapacity];
 	};
 

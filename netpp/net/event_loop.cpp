@@ -50,9 +50,15 @@ DealTimerPtr EventLoop::runAfter(const boost::posix_time::time_duration& delay, 
 }
 
 DealTimerPtr EventLoop::runEvery(const boost::posix_time::time_duration& delay, Functor&& f) {
+	std::function<void(DealTimerPtr, boost::posix_time::time_duration, Functor)> callback;
+	callback = [=](DealTimerPtr timer, boost::posix_time::time_duration delay, Functor f) {
+		f();
+		timer->expires_from_now(delay);
+		timer->async_wait(std::bind(callback, timer, std::move(delay), std::move(f)));
+	};
 	DealTimerPtr timer(new deadline_timer(*io_service_));	
 	timer->expires_from_now(delay);
-	timer->async_wait(std::bind(&EventLoop::execTimerEvery, this, timer, std::move(delay), std::move(f)));
+	timer->async_wait(std::bind(callback, timer, std::move(delay), std::move(f)));
 	return timer;
 }
 

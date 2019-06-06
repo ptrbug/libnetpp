@@ -26,8 +26,8 @@ void Buffer::reservedPrepend(size_t len) {
 	assert(front() == nullptr);
 	Piece* item = newPiece();
 	assert(len < sizeof(item->data));
-	item->misalgin = len;
-	item->off = 0;
+	item->off = len;
+	item->len = 0;
 	push(item);
 }
 
@@ -48,10 +48,10 @@ void Buffer::prependInt8(int8_t x) {
 void Buffer::prepend(size_t len, const void* d) {
 	Piece* first = front();
 	assert(first);
-	assert(len <= first->misalgin);
-	first->misalgin -= len;
-	memcpy(first->data + first->misalgin, (char*)d, len);
-	first->off += len;
+	assert(len <= first->off);
+	first->off -= len;
+	memcpy(first->data + first->off, (char*)d, len);
+	first->len += len;
 	length_ += len;
 }
 
@@ -108,11 +108,11 @@ void Buffer::read(size_t len, char* d) {
 	Piece* first = front();
 	size_t left = len;
 	do {
-		if (left <= first->off){
-			memcpy(d + len - left, first->data + first->misalgin, left);
-			if (left < first->off) {
-				first->misalgin += left;
-				first->off -= left;
+		if (left <= first->len){
+			memcpy(d + len - left, first->data + first->off, left);
+			if (left < first->len) {
+				first->off += left;
+				first->len -= left;
 			}
 			else {
 				deletePiece(pop());
@@ -120,8 +120,8 @@ void Buffer::read(size_t len, char* d) {
 			break;
 		}
 		else {
-			memcpy(d + len - left, first->data + first->misalgin, first->off);
-			left -= first->off;
+			memcpy(d + len - left, first->data + first->off, first->len);
+			left -= first->len;
 			deletePiece(pop());
 			first = front();
 		}
@@ -140,14 +140,14 @@ void Buffer::read(size_t len, Buffer* buf) {
 	Piece* first = front();
 	size_t left = len;
 	do {
-		if (left <= first->off){
-			if (left < first->off) {
+		if (left <= first->len){
+			if (left < first->len) {
 				Piece* buf_last = newPiece();
-				memcpy(buf_last->data, first->data + first->misalgin, left);
-				buf_last->off = left;
+				memcpy(buf_last->data, first->data + first->off, left);
+				buf_last->len = left;
 				buf->push(buf_last);
-				first->misalgin += left;
-				first->off -= left;
+				first->off += left;
+				first->len -= left;
 			}
 			else {
 				buf->push(pop());
@@ -183,22 +183,22 @@ void Buffer::write(const std::string& d) {
 
 void Buffer::write(size_t len, const char* d) {
 	Piece* last = back();
-	if (!last || last->misalgin + last->off == sizeof(last->data)){
+	if (!last || last->off + last->len == sizeof(last->data)){
 		push(newPiece());
 		last = back();
 	}
 
 	size_t left = len;
 	do {
-		size_t unwrite = sizeof(last->data) - last->misalgin - last->off;
+		size_t unwrite = sizeof(last->data) - last->off - last->len;
 		if (left <= unwrite) {
-			memcpy(last->data + last->misalgin + last->off, d + len - left, left);
-			last->off += left;
+			memcpy(last->data + last->off + last->len, d + len - left, left);
+			last->len += left;
 			break;
 		}
 		else {
-			memcpy(last->data + last->misalgin + last->off, d + len - left, unwrite);
-			last->off += unwrite;
+			memcpy(last->data + last->off + last->len, d + len - left, unwrite);
+			last->len += unwrite;
 			left -= unwrite;
 
 			push(newPiece());
@@ -213,10 +213,10 @@ void Buffer::skip(size_t len) {
 	Piece* first = front();
 	size_t left = len;
 	do {
-		if (left <= first->off){
-			if (left < first->off) {
-				first->misalgin += left;
-				first->off -= left;
+		if (left <= first->len){
+			if (left < first->len) {
+				first->off += left;
+				first->len -= left;
 			}
 			else {
 				deletePiece(pop());
@@ -224,7 +224,7 @@ void Buffer::skip(size_t len) {
 			break;
 		}
 		else {
-			left -= first->off;
+			left -= first->len;
 			deletePiece(pop());
 			first = front();
 		}

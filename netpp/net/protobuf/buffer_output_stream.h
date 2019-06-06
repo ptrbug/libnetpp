@@ -29,13 +29,13 @@ class BufferOutputStream : public google::protobuf::io::ZeroCopyOutputStream
 	 public:
 		 bool flatNext(void** data, int* size) {
 			 Piece* last = back();
-			 if (!last || last->misalgin + last->off == sizeof(last->data)) {
+			 if (!last || last->off + last->len == sizeof(last->data)) {
 				 push(newPiece());
 				 last = back();
 			 }
-			 *data = last->data + last->misalgin + last->off;
-			 *size = sizeof(last->data) - last->misalgin - last->off;
-			 last->off = sizeof(last->data) - last->misalgin;
+			 *data = last->data + last->off + last->len;
+			 *size = sizeof(last->data) - last->off - last->len;
+			 last->len = sizeof(last->data) - last->off;
 			 length_ += *size;
 			 return true;
 		 }
@@ -43,8 +43,8 @@ class BufferOutputStream : public google::protobuf::io::ZeroCopyOutputStream
 		 void flatBackUp(size_t len) {
 			 Piece* last = back();
 			 assert(last);
-			 assert(len < last->off);
-			 last->off -= len;
+			 assert(len < last->len);
+			 last->len -= len;
 			 length_ -= len;
 		 }
 	 };

@@ -23,16 +23,16 @@ public:
 			Piece* item = queue_.pop();
 			if (item) {
 				item->next = nullptr;
-				item->misalgin = 0;
 				item->off = 0;
+				item->len = 0;
 				return item;
 			}
 		}
 		
 		Piece* item = new Piece;
 		item->next = nullptr;
-		item->misalgin = 0;
 		item->off = 0;
+		item->len = 0;
 		return item;
 	}
 	
